@@ -35,20 +35,6 @@
 }
 
 #pragma mark - Private Method
-
-- (void)dismissView
-{
-    [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        self.top = - self.height;
-        self.bluredBackground.top = self.height;
-        _bgBtn.alpha = 0.0f;
-    } completion:^(BOOL isfinsh){
-        [_bgBtn removeFromSuperview];
-        _bgBtn = nil;
-        [self removeFromSuperview];
-    }];
-}
-
 - (void)initDatas
 {
     
@@ -85,6 +71,19 @@
     return [BlurView loadViewFromXibNamed:NSStringFromClass([self class])];
 }
 
+- (void)dismissView
+{
+    [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        self.top = - self.height;
+        self.bluredBackground.top = self.height;
+        _bgBtn.alpha = 0.0f;
+    } completion:^(BOOL isfinsh){
+        [_bgBtn removeFromSuperview];
+        _bgBtn = nil;
+        [self removeFromSuperview];
+    }];
+}
+
 -(void)showBlurViewFromSupView:(UIView *)supView complete:(void (^)())completionHandler
 {
     self.top = - self.height;
@@ -96,7 +95,7 @@
     if (!_bgBtn) {
         _bgBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         _bgBtn.frame = supView.bounds;
-        _bgBtn.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.70f];
+        _bgBtn.backgroundColor = [UIColor colorWithWhite:0.3 alpha:0.7f];
         _bgBtn.alpha = 0.0f;
         [_bgBtn addTarget:self action:@selector(bgBtnClick:) forControlEvents:UIControlEventTouchDown];
     }
@@ -149,8 +148,7 @@
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         self.wasUnderZero =NO;
         self.lastPoint = [recognizer translationInView:self].y;
-    }
-    if (recognizer.state == UIGestureRecognizerStateChanged) {
+    }else if (recognizer.state == UIGestureRecognizerStateChanged) {
         if (self.origin.y<=0 || !self.wasUnderZero) {
             self.bluredBackground.frame = CGRectMake(0, -(translatedPoint.y-self.lastPoint), self.bluredBackground.frame.size.width, self.bluredBackground.frame.size.height);
             self.frame = CGRectMake(0, translatedPoint.y-self.lastPoint, self.frame.size.width, self.frame.size.height);
@@ -159,10 +157,10 @@
                 self.bluredBackground.frame = CGRectMake(0, 0, self.bluredBackground.frame.size.width, self.bluredBackground.frame.size.height);
                 self.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
             }
+            //根据滑动来改变灰色背景的透明度
             _bgBtn.alpha = (BlurHeight+self.origin.y)/BlurHeight;
         }
-    }
-    if (recognizer.state == UIGestureRecognizerStateEnded) {
+    }else if (recognizer.state == UIGestureRecognizerStateEnded) {
         [UIView animateWithDuration:0.4 animations:^{
             if (self.frame.origin.y > -self.frame.size.height/3) {
                 self.bluredBackground.frame = CGRectMake(0, 0, self.bluredBackground.frame.size.width, self.bluredBackground.frame.size.height);
